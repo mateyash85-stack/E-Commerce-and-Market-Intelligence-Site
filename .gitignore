@@ -1,0 +1,35 @@
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Backend ──────────────────────────────────
+Backend/__pycache__/
+Backend/**/__pycache__/
+Backend/*.py[cod]
+Backend/venv/
+Backend/.env
+Backend/*.db
+Backend/*.sqlite
+Backend/*.log
+Backend/server_log.txt
+Backend/dist/
+Backend/build/
+Backend/*.egg-info/
+Backend/.pytest_cache/
+Backend/.mypy_cache/
+Backend/.coverage
+Backend/htmlcov/
+
+# ── Frontend ─────────────────────────────────
+Frontend/node_modules/
+Frontend/dist/
+Frontend/.env
+Frontend/.vite/
+Frontend/*.tsbuildinfo
+Frontend/coverage/
+Frontend/*.log
