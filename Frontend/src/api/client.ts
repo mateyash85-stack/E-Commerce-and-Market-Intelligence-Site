@@ -54,7 +54,10 @@ export const removeCartItem = (item_id: number) => api.delete(`/api/cart/${item_
 export const clearCart = () => api.delete('/api/cart')
 
 // Orders
-export const checkout = () => api.post('/api/orders')
+export const checkout = (data: {
+  full_name: string; phone: string; address_line1: string; address_line2?: string
+  city: string; state: string; pincode: string; payment_method: string
+}) => api.post('/api/orders', data)
 
 export const getOrders = () => api.get('/api/orders')
 

@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { getCart, updateCartItem, removeCartItem, checkout } from '../api/client'
+import { getCart, updateCartItem, removeCartItem } from '../api/client'
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, Tag } from 'lucide-react'
 import { useAuth } from '../store/authContext'
 import { toast } from 'sonner'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { formatINR, toINR } from '../utils/currency'
 
 export default function Cart({ onCartChange }: { onCartChange: () => void }) {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  const [checkingOut, setCheckingOut] = useState(false)
   const { user } = useAuth()
   const navigate = useNavigate()
 
@@ -37,17 +37,9 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
     } catch { toast.error('Failed to remove item') }
   }
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!user) return navigate('/auth')
-    setCheckingOut(true)
-    try {
-      await checkout()
-      toast.success('🎉 Order placed successfully!')
-      fetchCart(); onCartChange()
-      navigate('/orders')
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || 'Checkout failed')
-    } finally { setCheckingOut(false) }
+    navigate('/checkout')
   }
 
   if (!user) return (
@@ -65,7 +57,7 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
 
   if (loading) return <LoadingSpinner text="Loading cart..." />
 
-  const subtotal = items.reduce((s, i) => s + i.product.price * i.quantity, 0)
+  const subtotal = items.reduce((s, i) => s + toINR(i.product.price) * i.quantity, 0)
   const totalItems = items.reduce((s, i) => s + i.quantity, 0)
 
   return (
@@ -112,7 +104,7 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
                     className="font-semibold text-gray-800 hover:text-indigo-600 transition block truncate text-sm">
                     {item.product.name}
                   </Link>
-                  <p className="text-indigo-600 font-bold mt-0.5">₹{item.product.price.toFixed(2)}</p>
+                  <p className="text-indigo-600 font-bold mt-0.5">{formatINR(item.product.price)}</p>
                   {item.product.stock <= 5 && item.product.stock > 0 && (
                     <p className="text-xs text-amber-500 mt-0.5">⚠️ Only {item.product.stock} left</p>
                   )}
@@ -131,7 +123,7 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
                   </button>
                 </div>
                 <span className="font-bold text-gray-900 w-20 text-right text-sm">
-                  ₹{(item.product.price * item.quantity).toFixed(2)}
+                  ₹{(toINR(item.product.price) * item.quantity).toLocaleString('en-IN')}
                 </span>
                 <button onClick={() => remove(item.id)}
                   className="text-gray-200 hover:text-red-400 transition p-1 rounded-lg hover:bg-red-50">
@@ -149,38 +141,30 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
               <div className="space-y-3 text-sm mb-5">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({totalItems} items)</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                  <span>₹{subtotal.toLocaleString('en-IN')}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span className={subtotal >= 499 ? 'text-green-600 font-medium' : 'text-gray-600'}>
-                    {subtotal >= 499 ? 'Free' : '₹49.00'}
+                  <span className={subtotal >= 41657 ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                    {subtotal >= 41657 ? 'Free' : '₹49'}
                   </span>
                 </div>
-                {subtotal < 499 && (
+                {subtotal < 41657 && (
                   <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                    Add ₹{(499 - subtotal).toFixed(2)} more for free shipping
+                    Add ₹{(41657 - subtotal).toLocaleString('en-IN')} more for free shipping
                   </div>
                 )}
                 <div className="border-t pt-3 flex justify-between font-bold text-lg text-gray-900">
                   <span>Total</span>
-                  <span className="text-indigo-600">₹{(subtotal + (subtotal >= 499 ? 0 : 49)).toFixed(2)}</span>
+                  <span className="text-indigo-600">₹{(subtotal + (subtotal >= 41657 ? 0 : 49)).toLocaleString('en-IN')}</span>
                 </div>
               </div>
 
               <button
                 onClick={handleCheckout}
-                disabled={checkingOut}
-                className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3.5 rounded-xl hover:bg-indigo-700 disabled:opacity-50 font-semibold transition shadow-sm shadow-indigo-200"
+                className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3.5 rounded-xl hover:bg-indigo-700 font-semibold transition shadow-sm shadow-indigo-200"
               >
-                {checkingOut ? (
-                  <>
-                    <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Placing order...
-                  </>
-                ) : (
-                  <>Proceed to Checkout <ArrowRight size={16} /></>
-                )}
+                Proceed to Checkout <ArrowRight size={16} />
               </button>
 
               <div className="flex items-center justify-center gap-1.5 mt-4 text-xs text-gray-400">

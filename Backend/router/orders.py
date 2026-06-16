@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from config.database import get_db, User
-from controller.orders import place_order, get_orders, get_all_orders, update_order_status
+from controller.orders import place_order, get_orders, get_all_orders, update_order_status, CheckoutRequest
 from controller.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/api/orders", tags=["orders"])
@@ -13,8 +13,12 @@ class StatusUpdate(BaseModel):
 
 
 @router.post("")
-def checkout(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    return place_order(db, current_user.id)
+def checkout(
+    data: CheckoutRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    return place_order(db, current_user.id, data)
 
 
 @router.get("")

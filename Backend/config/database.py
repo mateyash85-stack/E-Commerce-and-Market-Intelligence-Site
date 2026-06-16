@@ -58,6 +58,20 @@ class Order(Base):
     status = Column(String, default="pending")
     total = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Address fields
+    full_name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
+    address_line1 = Column(String, nullable=True)
+    address_line2 = Column(String, nullable=True)
+    city = Column(String, nullable=True)
+    state = Column(String, nullable=True)
+    pincode = Column(String, nullable=True)
+
+    # Payment
+    payment_method = Column(String, nullable=True)   # upi | card | cod | netbanking
+    payment_status = Column(String, default="pending")  # pending | paid
+
     user = relationship("User", back_populates="orders")
     items = relationship("OrderItem", back_populates="order", cascade="all, delete")
 

@@ -4,6 +4,7 @@ import { getOrders } from '../api/client'
 import { useAuth } from '../store/authContext'
 import { Package, ArrowRight, ShoppingBag } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { formatINR, toINR } from '../utils/currency'
 
 const statusConfig: Record<string, { color: string; dot: string; label: string }> = {
   pending:   { color: 'bg-amber-50 text-amber-700 border-amber-200',  dot: 'bg-amber-400',  label: 'Pending'   },
@@ -102,17 +103,32 @@ export default function Orders() {
                           </span>
                           <span className="text-gray-700">{item.name}</span>
                         </div>
-                        <span className="text-gray-600 font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
+                        <span className="text-gray-600 font-medium">₹{(toINR(item.price) * item.quantity).toLocaleString('en-IN')}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between items-center border-t border-gray-50 mt-4 pt-4">
-                    <span className="text-sm text-gray-500">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
-                    <div className="text-right">
-                      <p className="text-xs text-gray-400">Total</p>
-                      <p className="font-bold text-gray-900 text-lg">₹{order.total.toFixed(2)}</p>
-                    </div>
+              <div className="flex items-center border-t border-gray-50 mt-4 pt-4">
+                  <div className="flex-1 text-sm text-gray-500">
+                    <p className="font-medium text-gray-700 mb-0.5">
+                      {order.full_name && `${order.full_name} · `}
+                      {order.city && `${order.city}`}
+                      {order.payment_method && (
+                        <span className="ml-2 text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full capitalize">
+                          {order.payment_method === 'cod' ? 'Cash on Delivery' : order.payment_method.toUpperCase()}
+                        </span>
+                      )}
+                    </p>
+                    {order.payment_status && (
+                      <span className={`text-xs font-medium ${order.payment_status === 'paid' ? 'text-green-600' : 'text-amber-500'}`}>
+                        Payment: {order.payment_status}
+                      </span>
+                    )}
                   </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-400">Total</p>
+                    <p className="font-bold text-gray-900 text-lg">₹{toINR(order.total).toLocaleString('en-IN')}</p>
+                  </div>
+                </div>
                 </div>
               </div>
             )

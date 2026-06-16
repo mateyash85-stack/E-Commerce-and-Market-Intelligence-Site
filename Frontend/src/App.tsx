@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import AdminProducts from './pages/AdminProducts'
 import AdminOrders from './pages/AdminOrders'
 import NotFound from './pages/NotFound'
+import Checkout from './pages/Checkout'
 import { addToCart, getCart } from './api/client'
 import { toast } from 'sonner'
 
@@ -51,6 +52,7 @@ function AppInner() {
         <Route path="/products" element={<Products onAddToCart={handleAddToCart} />} />
         <Route path="/products/:id" element={<ProductDetail onAddToCart={handleAddToCart} />} />
         <Route path="/cart" element={<Cart onCartChange={refreshCartCount} />} />
+        <Route path="/checkout" element={<Checkout onCartChange={refreshCartCount} />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/dashboard" element={<Dashboard />} />

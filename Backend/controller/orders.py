@@ -1,15 +1,47 @@
 from sqlalchemy.orm import Session
 from config.database import Order, OrderItem, CartItem
 from fastapi import HTTPException
+from pydantic import BaseModel
+from typing import Optional
 
 
-def place_order(db: Session, user_id: int):
+class CheckoutRequest(BaseModel):
+    # Address
+    full_name: str
+    phone: str
+    address_line1: str
+    address_line2: Optional[str] = ""
+    city: str
+    state: str
+    pincode: str
+    # Payment
+    payment_method: str   # upi | card | cod | netbanking
+
+
+def place_order(db: Session, user_id: int, data: CheckoutRequest):
     cart_items = db.query(CartItem).filter(CartItem.user_id == user_id).all()
     if not cart_items:
         raise HTTPException(status_code=400, detail="Cart is empty")
 
     total = sum(item.product.price * item.quantity for item in cart_items)
-    order = Order(user_id=user_id, total=total, status="pending")
+
+    # Simulate payment: cod is always "pending", others are "paid"
+    payment_status = "pending" if data.payment_method == "cod" else "paid"
+
+    order = Order(
+        user_id=user_id,
+        total=total,
+        status="confirmed",
+        full_name=data.full_name,
+        phone=data.phone,
+        address_line1=data.address_line1,
+        address_line2=data.address_line2,
+        city=data.city,
+        state=data.state,
+        pincode=data.pincode,
+        payment_method=data.payment_method,
+        payment_status=payment_status,
+    )
     db.add(order)
     db.flush()
 
@@ -25,43 +57,13 @@ def place_order(db: Session, user_id: int):
     db.query(CartItem).filter(CartItem.user_id == user_id).delete()
     db.commit()
     db.refresh(order)
-    return {
-        "id": order.id,
-        "status": order.status,
-        "total": order.total,
-        "created_at": order.created_at.isoformat(),
-        "items": [
-            {
-                "product_id": i.product_id,
-                "name": i.product.name,
-                "quantity": i.quantity,
-                "price": i.price,
-            }
-            for i in order.items
-        ],
-    }
+
+    return _serialize(order)
 
 
 def get_orders(db: Session, user_id: int):
     orders = db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).all()
-    result = []
-    for order in orders:
-        result.append({
-            "id": order.id,
-            "status": order.status,
-            "total": order.total,
-            "created_at": order.created_at.isoformat(),
-            "items": [
-                {
-                    "product_id": i.product_id,
-                    "name": i.product.name,
-                    "quantity": i.quantity,
-                    "price": i.price,
-                }
-                for i in order.items
-            ],
-        })
-    return result
+    return [_serialize(o) for o in orders]
 
 
 def get_all_orders(db: Session):
@@ -74,6 +76,9 @@ def get_all_orders(db: Session):
             "user_email": order.user.email,
             "status": order.status,
             "total": order.total,
+            "payment_method": order.payment_method,
+            "payment_status": order.payment_status,
+            "city": order.city,
             "created_at": order.created_at.isoformat(),
         })
     return result
@@ -87,3 +92,31 @@ def update_order_status(db: Session, order_id: int, status: str):
     db.commit()
     db.refresh(order)
     return order
+
+
+def _serialize(order: Order):
+    return {
+        "id": order.id,
+        "status": order.status,
+        "total": order.total,
+        "payment_method": order.payment_method,
+        "payment_status": order.payment_status,
+        "full_name": order.full_name,
+        "phone": order.phone,
+        "address_line1": order.address_line1,
+        "address_line2": order.address_line2,
+        "city": order.city,
+        "state": order.state,
+        "pincode": order.pincode,
+        "created_at": order.created_at.isoformat(),
+        "items": [
+            {
+                "product_id": i.product_id,
+                "name": i.product.name,
+                "quantity": i.quantity,
+                "price": i.price,
+                "image_url": i.product.image_url,
+            }
+            for i in order.items
+        ],
+    }
