@@ -1,5 +1,6 @@
 import { ShoppingCart, Star, Eye } from 'lucide-react'
 import { Link } from 'react-router'
+import { formatINR } from '../utils/currency'
 
 interface Product {
   id: number; name: string; price: number; image_url: string
@@ -51,7 +52,7 @@ export default function ProductCard({ product: p, onAddToCart }: { product: Prod
         </div>
 
         <div className="flex items-center justify-between mt-auto">
-          <span className="text-xl font-bold text-gray-900">₹{p.price.toFixed(2)}</span>
+          <span className="text-xl font-bold text-gray-900">{formatINR(p.price)}</span>
           <div className="flex items-center gap-1.5">
             <Link to={`/products/${p.id}`}
               className="p-1.5 border border-gray-200 rounded-lg text-gray-400 hover:text-indigo-600 hover:border-indigo-300 transition"

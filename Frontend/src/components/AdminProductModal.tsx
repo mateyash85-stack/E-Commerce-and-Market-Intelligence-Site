@@ -65,7 +65,7 @@ export default function AdminProductModal({
             </div>
 
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Price ($) *</label>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Price (₹) *</label>
               <input required type="number" min="0" step="0.01" value={form.price}
                 onChange={e => set('price', parseFloat(e.target.value) || 0)}
                 className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />

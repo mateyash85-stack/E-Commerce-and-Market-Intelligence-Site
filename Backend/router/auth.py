@@ -14,6 +14,11 @@ class RegisterRequest(BaseModel):
     password: str
 
 
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    new_password: str
+
+
 @router.post("/register", status_code=201)
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
     if db.query(User).filter(User.email == data.email).first():
@@ -38,3 +43,15 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
 @router.get("/me")
 def me(current_user: User = Depends(get_current_user)):
     return {"id": current_user.id, "name": current_user.name, "email": current_user.email, "role": current_user.role}
+
+
+@router.post("/reset-password")
+def reset_password(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == data.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="No account found with this email address")
+    if len(data.new_password) < 6:
+        raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+    user.hashed_password = hash_password(data.new_password)
+    db.commit()
+    return {"detail": "Password updated successfully"}

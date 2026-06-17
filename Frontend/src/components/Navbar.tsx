@@ -61,9 +61,9 @@ export default function Navbar({ cartCount = 0 }: { cartCount?: number }) {
               {adminOpen && (
                 <div className="absolute right-0 mt-1 w-52 bg-white border rounded-xl shadow-xl py-1.5 z-50">
                   <p className="px-4 py-1.5 text-xs text-gray-400 font-medium uppercase tracking-wide">Admin Panel</p>
-                  <Link to="/dashboard" onClick={() => setAdminOpen(false)}
+                  <Link to="/admin" onClick={() => setAdminOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
-                    <BarChart2 size={15} /> Analytics
+                    <BarChart2 size={15} /> Dashboard
                   </Link>
                   <Link to="/admin/products" onClick={() => setAdminOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
@@ -72,6 +72,10 @@ export default function Navbar({ cartCount = 0 }: { cartCount?: number }) {
                   <Link to="/admin/orders" onClick={() => setAdminOpen(false)}
                     className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
                     <ShoppingBag size={15} /> Orders
+                  </Link>
+                  <Link to="/admin/users" onClick={() => setAdminOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600 transition">
+                    <User size={15} /> Users
                   </Link>
                 </div>
               )}
@@ -131,14 +135,17 @@ export default function Navbar({ cartCount = 0 }: { cartCount?: number }) {
           </Link>
           {user?.role === 'admin' && (
             <>
-              <Link to="/dashboard" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
-                <BarChart2 size={15} /> Analytics
+              <Link to="/admin" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                <BarChart2 size={15} /> Dashboard
               </Link>
               <Link to="/admin/products" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                 <Package size={15} /> Manage Products
               </Link>
               <Link to="/admin/orders" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
                 <ShoppingBag size={15} /> Manage Orders
+              </Link>
+              <Link to="/admin/users" className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-600">
+                <User size={15} /> Manage Users
               </Link>
             </>
           )}

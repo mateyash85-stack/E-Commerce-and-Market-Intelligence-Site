@@ -145,18 +145,18 @@ export default function Cart({ onCartChange }: { onCartChange: () => void }) {
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
-                  <span className={subtotal >= 41657 ? 'text-green-600 font-medium' : 'text-gray-600'}>
-                    {subtotal >= 41657 ? 'Free' : '₹49'}
+                  <span className={subtotal >= 499 ? 'text-green-600 font-medium' : 'text-gray-600'}>
+                    {subtotal >= 499 ? 'Free' : '₹49'}
                   </span>
                 </div>
-                {subtotal < 41657 && (
+                {subtotal < 499 && (
                   <div className="text-xs text-amber-600 bg-amber-50 rounded-lg px-3 py-2">
-                    Add ₹{(41657 - subtotal).toLocaleString('en-IN')} more for free shipping
+                    Add ₹{(499 - subtotal).toLocaleString('en-IN')} more for free shipping
                   </div>
                 )}
                 <div className="border-t pt-3 flex justify-between font-bold text-lg text-gray-900">
                   <span>Total</span>
-                  <span className="text-indigo-600">₹{(subtotal + (subtotal >= 41657 ? 0 : 49)).toLocaleString('en-IN')}</span>
+                  <span className="text-indigo-600">₹{(subtotal + (subtotal >= 499 ? 0 : 49)).toLocaleString('en-IN')}</span>
                 </div>
               </div>
 

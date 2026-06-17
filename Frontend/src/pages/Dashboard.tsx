@@ -1,20 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Navigate, Link } from 'react-router'
 import { useAuth } from '../store/authContext'
 import { getStats, getSales, getTopProducts, getCategoryBreakdown, getOrderStatusBreakdown } from '../api/client'
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { DollarSign, ShoppingBag, Users, Package, ChevronRight } from 'lucide-react'
+import { DollarSign, ShoppingBag, Users, Package } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { formatINR } from '../utils/currency'
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981']
 
-function StatCard({ icon: Icon, label, value, color }: any) {
+function StatCard({ icon: Icon, label, value, color, sub }: any) {
   return (
     <div className="bg-white border rounded-xl p-5 flex items-center gap-4">
       <div className={`p-3 rounded-full ${color}`}><Icon size={22} className="text-white" /></div>
       <div>
         <p className="text-sm text-gray-500">{label}</p>
         <p className="text-2xl font-bold text-gray-900">{value}</p>
+        {sub && <p className="text-xs text-gray-400 mt-0.5">{sub}</p>}
       </div>
     </div>
   )
@@ -24,39 +25,33 @@ export default function Dashboard() {
   const { user } = useAuth()
   const [stats, setStats] = useState<any>(null)
   const [sales, setSales] = useState<any[]>([])
+  const [salesDays, setSalesDays] = useState(30)
   const [topProducts, setTopProducts] = useState<any[]>([])
   const [categories, setCategories] = useState<any[]>([])
   const [orderStatus, setOrderStatus] = useState<any[]>([])
 
   useEffect(() => {
     if (!user || user.role !== 'admin') return
-    Promise.all([getStats(), getSales(), getTopProducts(), getCategoryBreakdown(), getOrderStatusBreakdown()])
+    Promise.all([getStats(), getSales(salesDays), getTopProducts(), getCategoryBreakdown(), getOrderStatusBreakdown()])
       .then(([s, sl, tp, cat, os]) => {
         setStats(s.data); setSales(sl.data); setTopProducts(tp.data); setCategories(cat.data); setOrderStatus(os.data)
       })
-  }, [user])
+  }, [user, salesDays])
 
-  if (!user) return <Navigate to="/auth" />
-  if (user.role !== 'admin') return <Navigate to="/" />
   if (!stats) return <LoadingSpinner text="Loading dashboard..." />
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-2">Market Intelligence Dashboard</h1>
-      <div className="flex gap-3 mb-8">
-        <Link to="/admin/products"
-          className="flex items-center gap-1 text-sm text-indigo-600 hover:underline">
-          Manage Products <ChevronRight size={14} />
-        </Link>
-        <Link to="/admin/orders"
-          className="flex items-center gap-1 text-sm text-indigo-600 hover:underline">
-          Manage Orders <ChevronRight size={14} />
-        </Link>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Overview</h1>
+          <p className="text-gray-500 text-sm mt-1">Market intelligence at a glance</p>
+        </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon={DollarSign} label="Total Revenue" value={`$${stats.total_revenue.toLocaleString()}`} color="bg-indigo-500" />
+        <StatCard icon={DollarSign} label="Total Revenue" value={formatINR(stats.total_revenue)} color="bg-indigo-500" sub="excl. cancelled" />
         <StatCard icon={ShoppingBag} label="Total Orders" value={stats.total_orders} color="bg-purple-500" />
         <StatCard icon={Users} label="Customers" value={stats.total_customers} color="bg-pink-500" />
         <StatCard icon={Package} label="Products" value={stats.total_products} color="bg-amber-500" />
@@ -65,7 +60,18 @@ export default function Dashboard() {
       {/* Sales Over Time */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white border rounded-xl p-5">
-          <h2 className="font-semibold text-gray-700 mb-4">Revenue (Last 30 days)</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-gray-700">Revenue Over Time</h2>
+            <select
+              value={salesDays}
+              onChange={e => setSalesDays(Number(e.target.value))}
+              className="text-xs border rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+            </select>
+          </div>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={sales}>
               <XAxis dataKey="date" tick={{ fontSize: 11 }} />

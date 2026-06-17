@@ -32,6 +32,9 @@ export const login = (email: string, password: string) => {
 
 export const getMe = () => api.get('/api/auth/me')
 
+export const resetPassword = (email: string, new_password: string) =>
+  api.post('/api/auth/reset-password', { email, new_password })
+
 // Products
 export const getProducts = (params?: { category?: string; search?: string; skip?: number; limit?: number }) =>
   api.get('/api/products', { params })
@@ -90,5 +93,12 @@ export const getTopProducts = () => api.get('/api/analytics/top-products')
 export const getCategoryBreakdown = () => api.get('/api/analytics/categories')
 
 export const getOrderStatusBreakdown = () => api.get('/api/analytics/order-status')
+
+// Admin – Users
+export const getAllUsers = () => api.get('/api/users')
+export const updateUserRole = (user_id: number, role: string) =>
+  api.put(`/api/users/${user_id}/role`, { role })
+
+export const deleteUser = (user_id: number) => api.delete(`/api/users/${user_id}`)
 
 export default api

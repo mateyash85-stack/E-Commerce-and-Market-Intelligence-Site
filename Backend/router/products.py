@@ -15,9 +15,17 @@ def list_categories(db: Session = Depends(get_db)):
     return [r[0] for r in rows]
 
 
+def serialize(p):
+    return {
+        "id": p.id, "name": p.name, "description": p.description,
+        "price": p.price, "category": p.category, "image_url": p.image_url,
+        "stock": p.stock, "rating": p.rating, "reviews_count": p.reviews_count
+    }
+
+
 @router.get("")
 def list_products(category: Optional[str] = None, search: Optional[str] = None, skip: int = 0, limit: int = 20, db: Session = Depends(get_db)):
-    return get_products(db, category=category, search=search, skip=skip, limit=limit)
+    return [serialize(p) for p in get_products(db, category=category, search=search, skip=skip, limit=limit)]
 
 
 @router.get("/{product_id}")
@@ -25,12 +33,12 @@ def retrieve_product(product_id: int, db: Session = Depends(get_db)):
     product = get_product(db, product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    return serialize(product)
 
 
 @router.post("", status_code=201, dependencies=[Depends(require_admin)])
 def add_product(data: ProductCreate, db: Session = Depends(get_db)):
-    return create_product(db, data)
+    return serialize(create_product(db, data))
 
 
 @router.put("/{product_id}", dependencies=[Depends(require_admin)])
@@ -38,7 +46,7 @@ def edit_product(product_id: int, data: ProductUpdate, db: Session = Depends(get
     product = update_product(db, product_id, data)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
-    return product
+    return serialize(product)
 
 
 @router.delete("/{product_id}", dependencies=[Depends(require_admin)])

@@ -79,7 +79,7 @@ function AddressStep({ addr, onChange, onNext }: {
         <div>
           <label className="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wide">Full Name *</label>
           <input required value={addr.full_name} onChange={e => set('full_name', e.target.value)}
-            placeholder="Yash Sharma" className={inputCls} />
+            placeholder="John Doe" className={inputCls} />
         </div>
         <div>
           <label className="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wide">Phone Number *</label>
@@ -210,7 +210,7 @@ function PaymentStep({ method, setMethod, total, onNext, onBack }: {
           <div>
             <label className="text-xs font-semibold text-gray-500 mb-1 block uppercase tracking-wide">Name on Card *</label>
             <input value={cardName} onChange={e => setCardName(e.target.value)}
-              placeholder="YASH SHARMA"
+              placeholder="JOHN DOE"
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 transition" />
           </div>
           <div className="grid grid-cols-2 gap-3">

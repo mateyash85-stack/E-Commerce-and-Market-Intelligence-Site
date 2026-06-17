@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router'
-import { useAuth } from '../store/authContext'
 import { getAllOrders, updateOrderStatus } from '../api/client'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { ShoppingBag } from 'lucide-react'
 import { toast } from 'sonner'
+import { toINR } from '../utils/currency'
 
 const STATUS_OPTIONS = ['pending', 'shipped', 'delivered', 'cancelled']
 
@@ -16,14 +15,10 @@ const statusColor: Record<string, string> = {
 }
 
 export default function AdminOrders() {
-  const { user } = useAuth()
   const [orders, setOrders] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<number | null>(null)
   const [filter, setFilter] = useState('')
-
-  if (!user) return <Navigate to="/auth" />
-  if (user.role !== 'admin') return <Navigate to="/" />
 
   const fetchOrders = () => {
     setLoading(true)
@@ -60,7 +55,7 @@ export default function AdminOrders() {
         <div>
           <h1 className="text-3xl font-bold">Order Management</h1>
           <p className="text-gray-500 text-sm mt-1">
-            {orders.length} total orders · ${totalRevenue.toFixed(2)} revenue
+            {orders.length} total orders · ₹{toINR(totalRevenue).toLocaleString('en-IN')} revenue
           </p>
         </div>
         <select
@@ -126,7 +121,7 @@ export default function AdminOrders() {
                     })}
                   </td>
                   <td className="px-4 py-3 text-right font-bold text-gray-800">
-                    ${order.total.toFixed(2)}
+                    ₹{toINR(order.total).toLocaleString('en-IN')}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${statusColor[order.status] || 'bg-gray-100 text-gray-600'}`}>

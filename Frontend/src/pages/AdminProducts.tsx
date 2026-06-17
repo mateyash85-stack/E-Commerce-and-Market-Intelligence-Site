@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Navigate } from 'react-router'
 import { useAuth } from '../store/authContext'
 import { getProducts, deleteProduct } from '../api/client'
 import AdminProductModal from '../components/AdminProductModal'
 import LoadingSpinner from '../components/LoadingSpinner'
 import { Plus, Pencil, Trash2, Package } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatINR } from '../utils/currency'
 
 export default function AdminProducts() {
   const { user } = useAuth()
@@ -13,9 +13,6 @@ export default function AdminProducts() {
   const [loading, setLoading] = useState(true)
   const [modalProduct, setModalProduct] = useState<any | null | undefined>(undefined)
   // undefined = closed, null = new product, object = edit product
-
-  if (!user) return <Navigate to="/auth" />
-  if (user.role !== 'admin') return <Navigate to="/" />
 
   const fetchProducts = () => {
     setLoading(true)
@@ -93,7 +90,7 @@ export default function AdminProducts() {
                       {p.category || '—'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-gray-800">${p.price.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-gray-800">{formatINR(p.price)}</td>
                   <td className="px-4 py-3 text-right">
                     <span className={`font-medium ${p.stock === 0 ? 'text-red-500' : p.stock < 10 ? 'text-amber-500' : 'text-green-600'}`}>
                       {p.stock}

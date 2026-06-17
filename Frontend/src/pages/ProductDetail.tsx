@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router'
 import { getProduct } from '../api/client'
 import { ShoppingCart, Star, ArrowLeft, Package, Shield, Truck } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import { formatINR } from '../utils/currency'
 
 export default function ProductDetail({ onAddToCart }: { onAddToCart: (id: number) => void }) {
   const { id } = useParams()
@@ -82,7 +83,7 @@ export default function ProductDetail({ onAddToCart }: { onAddToCart: (id: numbe
 
           <p className="text-gray-600 text-sm leading-relaxed mb-6">{product.description}</p>
 
-          <div className="text-4xl font-black text-gray-900 mb-2">₹{product.price.toFixed(2)}</div>
+          <div className="text-4xl font-black text-gray-900 mb-2">{formatINR(product.price)}</div>
           <p className="text-sm text-gray-400 mb-6 flex items-center gap-1.5">
             <Package size={14} />
             {product.stock > 0
